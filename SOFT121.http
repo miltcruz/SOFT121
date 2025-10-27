@@ -1,0 +1,47 @@
+@SOFT121_HostAddress = http://localhost:5156
+
+GET {{SOFT121_HostAddress}}/weatherforecast/
+Accept: application/json
+
+GET {{SOFT121_HostAddress}}/contact/
+Accept: application/json
+
+GET {{SOFT121_HostAddress}}/product/
+Accept: application/json
+
+### Get product by id
+GET {{SOFT121_HostAddress}}/product/1
+Accept: application/json
+
+### Create a new product
+POST {{SOFT121_HostAddress}}/product/
+Content-Type: application/json
+
+{
+    "categoryId": 1,
+    "productCode": "GADGET-001",
+    "productName": "Super Gadget",
+    "description": "A high-tech gadget with many features.",
+    "listPrice": 99.99,
+    "discountPercent": 10.0
+}
+
+### Update product (id = 1)
+PUT {{SOFT121_HostAddress}}/product/1
+Content-Type: application/json
+
+{
+    "productId": 1,
+    "categoryId": 1,
+    "productCode": "GADGET-001",
+    "productName": "Super Gadget",
+    "description": "A high-tech gadget with many features.",
+    "listPrice": 99.99,
+    "discountPercent": 10.0
+}
+
+### Delete product (id = 2)
+DELETE {{SOFT121_HostAddress}}/product/2
+Accept: application/json
+
+###
