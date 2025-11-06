@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { validateEmail, validatePassword } from '../scripts';
+import Button from './Button';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -78,7 +79,9 @@ function Login() {
           required
         />
       </div>
-      <button type="submit">Login</button>
+      <Button type="submit" bg="blue" color="white">
+        Login
+      </Button>
       {message && <div>{message}</div>}
     </form>
   );
