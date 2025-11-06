@@ -1,3 +1,5 @@
+using SOFT121.Infrastructure.Interfaces;
+using SOFT121.Infrastructure.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -8,6 +10,9 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, relo
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Register IDataRepositoryFactory
+builder.Services.AddSingleton<IDataRepositoryFactory, DataRepositoryFactory>();
 
 var app = builder.Build();
 

@@ -1,6 +1,8 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using SOFT121.Infrastructure.Interfaces;
 using SOFT121.Models;
 
 namespace SOFT121.Controllers
@@ -9,37 +11,32 @@ namespace SOFT121.Controllers
     [Route("[controller]")]
     public class ContactController : ControllerBase
     {
-        private readonly SqlConnection _connection;
+        private readonly IDataRepository _repo;
 
-        public ContactController(IConfiguration configuration)
+        public ContactController(IDataRepositoryFactory factory)
         {
-            var connectionString = configuration.GetConnectionString("AP");
-            _connection = new SqlConnection(connectionString);
-            _connection.Open();
+            _repo = factory.Create("AP");
         }
 
         [HttpGet(Name = "GetContacts")]
-        public List<Contact> GetAll()
+        public async Task<List<Contact>> GetAll()
         {
-            var contacts = new List<Contact>();
-            using (SqlCommand command = new SqlCommand("GetAllContactUpdates", _connection))
+            var results = new List<Contact>();
+            var rows = await _repo.GetDataAsync("GetAllContactUpdates");
+            foreach (var row in rows)
             {
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                using (SqlDataReader reader = command.ExecuteReader())
+                var contact = new Contact
                 {
-                    while (reader.Read())
-                    {
-                        var contact = new Contact
-                        {
-                            VendorID = reader["VendorID"] != DBNull.Value ? Convert.ToInt32(reader["VendorID"]) : 0,
-                            LastName = reader["LastName"]?.ToString() ?? string.Empty,
-                            FirstName = reader["FirstName"]?.ToString() ?? string.Empty
-                        };
-                        contacts.Add(contact);
-                    }
-                }
+                    VendorID = row["VendorID"] != DBNull.Value ? Convert.ToInt32(row["VendorID"]) : 0,
+                    LastName = row["LastName"]?.ToString() ?? string.Empty,
+                    FirstName = row["FirstName"]?.ToString() ?? string.Empty
+                };
+
+                results.Add(contact);
             }
-            return contacts;
+
+
+            return results;
         }
     }
 }
