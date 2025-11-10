@@ -1,7 +1,4 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using SOFT121.Infrastructure.Interfaces;
 using SOFT121.Models;
 

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SOFT121.Infrastructure.Interfaces;
 using SOFT121.Models;
 
 namespace SOFT121.Controllers;
@@ -8,35 +9,23 @@ namespace SOFT121.Controllers;
 
 public class ProductController : ControllerBase
 {
-    private static List<Product> products = new List<Product>
+    private readonly IDataRepository _repo;
+
+    // remove in-memory list when implementing data access
+    private List<Product> products = new List<Product>();
+
+    public ProductController(IDataRepositoryFactory factory)
     {
-        new Product
-        {
-            ProductId = 1,
-            CategoryId = 1,
-            ProductCode = "GADGET-001",
-            ProductName = "Super Gadget",
-            Description = "A high-tech gadget with many features.",
-            ListPrice = 99.99M,
-            DiscountPercent = 10.0M
-        },
-        new Product
-        {
-            ProductId = 2,
-            CategoryId = 2,
-            ProductCode = "WIDGET-002",
-            ProductName = "Amazing Widget",
-            Description = "An amazing widget that makes life easier.",
-            ListPrice = 49.99M,
-            DiscountPercent = 5.0M
-        }
-    };
+        _repo = factory.Create("MyGuitarShop");
+    }
 
     [HttpGet(Name = "GetProducts")]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
         try
         {
+            var rows = await _repo.GetDataAsync("GetAllProducts");
+            products = rows.Select(MapRowToProduct).ToList();
             return Ok(products);
         }
         catch (Exception ex)
@@ -46,7 +35,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("{id}", Name = "GetProductById")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id)
     {
         var product = products.FirstOrDefault(p => p.ProductId == id);
 
@@ -54,7 +43,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost(Name = "CreateProduct")]
-    public IActionResult Create([FromBody] Product newProduct)
+    public async Task<IActionResult> Create([FromBody] Product newProduct)
     {
         if (newProduct == null)
         {
@@ -67,7 +56,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("{id}", Name = "UpdateProduct")]
-    public IActionResult Update(int id, Product updatedProduct)
+    public async Task<IActionResult> Update(int id, Product updatedProduct)
     {
         var product = products.FirstOrDefault(p => p.ProductId == id);
         if (product == null) return NotFound();
@@ -79,7 +68,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpDelete("{id}", Name = "DeleteProduct")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         var product = products.FirstOrDefault(p => p.ProductId == id);
 
@@ -87,5 +76,19 @@ public class ProductController : ControllerBase
         bool removed = products.Remove(product);
 
         return NoContent();
+    }
+
+    private static Product MapRowToProduct(IDictionary<string, object?> row)
+    {
+        return new Product
+        {
+            ProductId = row["ProductID"] != DBNull.Value ? Convert.ToInt32(row["ProductID"]) : 0,
+            CategoryId = row["CategoryID"] != DBNull.Value ? Convert.ToInt32(row["CategoryID"]) : 0,
+            ProductCode = row["ProductCode"]?.ToString() ?? string.Empty,
+            ProductName = row["ProductName"]?.ToString() ?? string.Empty,
+            Description = row["Description"]?.ToString() ?? string.Empty,
+            ListPrice = row["ListPrice"] != DBNull.Value ? Convert.ToDecimal(row["ListPrice"]) : 0.0m,
+            DiscountPercent = row["DiscountPercent"] != DBNull.Value ? Convert.ToDecimal(row["DiscountPercent"]) : 0.0m
+        };
     }
 }
