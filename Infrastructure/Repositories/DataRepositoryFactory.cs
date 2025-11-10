@@ -20,6 +20,16 @@ public class DataRepositoryFactory : IDataRepositoryFactory
         if (string.IsNullOrEmpty(connectionString))
             throw new ArgumentException($"Connection string '{databaseName}' not found.");
 
-        return new SqlServerRepository(connectionString);
+        var dbProvider = _configuration["DbProvider"] ?? "SqlServer"; // Default to SqlServer if not specified
+
+        switch (dbProvider.Trim().ToLower())
+        {
+            case "mysql":
+                return new MySqlRepository(connectionString);
+            case "sqlserver":
+                return new SqlServerRepository(connectionString);
+            default:
+                throw new NotSupportedException($"Database provider '{dbProvider}' is not supported.");
+        }
     }
 }
