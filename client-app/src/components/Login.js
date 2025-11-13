@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
 import { validateEmail, validatePassword } from '../scripts';
+import { useNavigate } from 'react-router';
 import Button from './Button';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
-    console.log('e from button', e);
     // Prevent default form submission behavior
     e.preventDefault();
-    console.log({
-      email: validateEmail(email),
-      password: validatePassword(password),
-    });
 
     // Clear message on new submit
     setMessage('');
@@ -40,13 +37,25 @@ function Login() {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('response', response);
-
       if (response.ok) {
         const data = await response.json();
-        setMessage('Login successful!');
-        // Handle successful login (e.g., store token, redirect)
+
+        if (data.isAuthenticated) {
+          // Set props in localStorage
+          localStorage.setItem('isAuthenticated', 'true');
+          localStorage.setItem('user', JSON.stringify(data.user));
+
+          setMessage('Login successful!');
+
+          // redirect to weather page
+          navigate('/weather');
+        }
       }
+
+      // clear fields and prompt user to try again
+      setMessage('Login failed. Please try again.');
+      setEmail('');
+      setPassword('');
     } catch (error) {
       setMessage('Login failed. Please try again.');
     }
@@ -72,10 +81,7 @@ function Login() {
           type="password"
           name="password"
           value={password}
-          onChange={(e) => {
-            console.log('e from Password', e);
-            setPassword(e.target.value);
-          }}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
       </div>

@@ -1,10 +1,9 @@
-import logo from './logo.svg';
 import './App.css';
 import Home from './components/Home';
 import Login from './components/Login';
 import About from './components/About';
 import Weather from './components/Weather';
-
+import RequireAuth from './components/RequireAuth';
 import { BrowserRouter, Link, Route, Routes } from 'react-router';
 
 function App() {
@@ -18,7 +17,14 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/about" element={<About />} />
-        <Route path="/weather" element={<Weather />} />
+        <Route
+          path="/weather"
+          element={
+            <RequireAuth>
+              <Weather />
+            </RequireAuth>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

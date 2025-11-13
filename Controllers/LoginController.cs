@@ -15,12 +15,16 @@ public class LoginController : ControllerBase
             return BadRequest("Email and Password are required.");
 
 
-        return Ok(new User
+        return Ok(new LoginResponse
         {
-            Id = 1,
-            Email = loginRequest.Email,
-            FirstName = "John",
-            LastName = "Doe"
+            IsAuthenticated = true,
+            User = new User
+            {
+                Id = 1,
+                Email = loginRequest.Email,
+                FirstName = "John",
+                LastName = "Doe"
+            }
         });
 
     }
