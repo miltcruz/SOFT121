@@ -9,22 +9,19 @@ namespace SOFT121.Controllers;
 public class LoginController : ControllerBase
 {
     [HttpPost]
-    public IActionResult Post([FromBody] LoginRequest loginRequest)
+    public IActionResult Login([FromBody] LoginRequest loginRequest)
     {
         if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Email) || string.IsNullOrEmpty(loginRequest.Password))
             return BadRequest("Email and Password are required.");
 
+        // Simulate authentication logic
+        bool isAuthenticated = false;
+        User user = new User();
 
         return Ok(new LoginResponse
         {
-            IsAuthenticated = true,
-            User = new User
-            {
-                Id = 1,
-                Email = loginRequest.Email,
-                FirstName = "John",
-                LastName = "Doe"
-            }
+            IsAuthenticated = isAuthenticated,
+            User = user
         });
 
     }
