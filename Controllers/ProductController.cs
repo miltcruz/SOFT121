@@ -37,8 +37,10 @@ public class ProductController : ControllerBase
     [HttpGet("{id}", Name = "GetProductById")]
     public async Task<IActionResult> GetById(int id)
     {
-        var product = products.FirstOrDefault(p => p.ProductId == id);
+        var param = new Dictionary<string, object?> { { "ProductId", id } };
+        var rows = await _repo.GetDataAsync("GetProduct", param);
 
+        var product = rows.Select(MapRowToProduct).FirstOrDefault();
         return product == null ? NotFound() : Ok(product);
     }
 
