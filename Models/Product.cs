@@ -2,11 +2,11 @@ namespace SOFT121.Models;
 
 public class Product
 {
-    public int ProductId { get; set; }
-    public int CategoryId { get; set; }
-    public string ProductCode { get; set; }
-    public string ProductName { get; set; }
-    public string Description { get; set; }
-    public decimal ListPrice { get; set; }
-    public decimal DiscountPercent { get; set; }
+    public int ProductId { get; set; } = 0;
+    public int CategoryId { get; set; } = 0;
+    public string ProductCode { get; set; } = string.Empty;
+    public string ProductName { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public decimal ListPrice { get; set; } = 0.0m;
+    public decimal DiscountPercent { get; set; } = 0.0m;
 }

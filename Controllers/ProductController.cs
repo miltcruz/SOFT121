@@ -62,8 +62,15 @@ public class ProductController : ControllerBase
                 { "ListPrice", newProduct.ListPrice },
                 { "DiscountPercent", newProduct.DiscountPercent }
             };
+
             var rows = await _repo.GetDataAsync("AddProduct", param);
-            return CreatedAtRoute("GetProductById", new { id = newProduct.ProductId }, newProduct);
+            var createdRow = rows.Select(MapRowToProduct).FirstOrDefault();
+
+            if (createdRow == null)
+            {
+                return StatusCode(500, "Failed to create product.");
+            }
+            return CreatedAtRoute("GetProductById", new { id = createdRow.ProductId }, createdRow);
         }
         catch (Exception ex)
         {
