@@ -49,7 +49,7 @@ export default function ProductCreate() {
         />
       </div>
       <Button type="submit" bg="blue" color="white">
-        Login
+        Create
       </Button>
       {message && <div>{message}</div>}
     </form>
