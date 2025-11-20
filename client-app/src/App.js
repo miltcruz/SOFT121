@@ -4,6 +4,7 @@ import Login from './components/Login';
 import About from './components/About';
 import Weather from './components/Weather';
 import Products from './components/product/Products';
+import ProductDetails from './components/product/ProductDetails';
 import RequireAuth from './components/RequireAuth';
 import { BrowserRouter, Link, Route, Routes } from 'react-router';
 
@@ -28,10 +29,7 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route
-          path="/product/:productId"
-          element={<div>Product Details Page</div>}
-        />
+        <Route path="/product/:productId" element={<ProductDetails />} />
       </Routes>
     </BrowserRouter>
   );
