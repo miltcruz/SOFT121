@@ -52,9 +52,23 @@ public class ProductController : ControllerBase
             return BadRequest("Invalid product data.");
         }
 
-        newProduct.ProductId = products.Count + 1;
-        products.Add(newProduct);
-        return CreatedAtRoute("GetProductById", new { id = newProduct.ProductId }, newProduct);
+        try
+        {
+            var param = new Dictionary<string, object?> {
+                { "CategoryId", newProduct.CategoryId },
+                { "ProductCode", newProduct.ProductCode },
+                { "ProductName", newProduct.ProductName },
+                { "Description", newProduct.Description },
+                { "ListPrice", newProduct.ListPrice },
+                { "DiscountPercent", newProduct.DiscountPercent }
+            };
+            var rows = await _repo.GetDataAsync("AddProduct", param);
+            return CreatedAtRoute("GetProductById", new { id = newProduct.ProductId }, newProduct);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}.");
+        }
     }
 
     [HttpPut("{id}", Name = "UpdateProduct")]
