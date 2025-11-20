@@ -3,7 +3,7 @@ import Home from './components/Home';
 import Login from './components/Login';
 import About from './components/About';
 import Weather from './components/Weather';
-import Products from './components/Products';
+import Products from './components/product/Products';
 import RequireAuth from './components/RequireAuth';
 import { BrowserRouter, Link, Route, Routes } from 'react-router';
 
