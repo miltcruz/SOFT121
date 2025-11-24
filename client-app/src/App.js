@@ -6,6 +6,7 @@ import Weather from './components/Weather';
 import Products from './components/product/Products';
 import ProductDetails from './components/product/ProductDetails';
 import ProductCreate from './components/product/ProductCreate';
+import ProductUpdate from './components/product/ProductUpdate';
 import RequireAuth from './components/RequireAuth';
 import { BrowserRouter, Link, Route, Routes } from 'react-router';
 
@@ -32,6 +33,7 @@ function App() {
         />
         <Route path="/product/create" element={<ProductCreate />} />
         <Route path="/product/:productId" element={<ProductDetails />} />
+        <Route path="/product/update/:productId" element={<ProductUpdate />} />
       </Routes>
     </BrowserRouter>
   );

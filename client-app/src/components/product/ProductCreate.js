@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../Button';
 import { useNavigate } from 'react-router';
 import { validateNumber, validationAlphaNumeric } from '../../scripts';
@@ -7,13 +7,14 @@ import { ENDPOINTS } from '../../apiConfig';
 export default function ProductCreate() {
   const [form, setForm] = useState({
     productId: 0,
-    categoryId: 0,
+    categoryId: '',
     productCode: '',
     productName: '',
     description: '',
     listPrice: 0.0,
     discountPercent: 0.0,
   });
+  const [categories, setCategories] = useState([]);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
@@ -26,13 +27,30 @@ export default function ProductCreate() {
     }));
   };
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(ENDPOINTS.CATEGORY);
+        if (!res.ok) throw new Error('Failed to load categories');
+        const data = await res.json();
+        setCategories(data || []);
+        // if no category selected, optionally set to first category id
+        if (!form.categoryId && data && data.length > 0) {
+          setForm((prev) => ({ ...prev, categoryId: data[0].categoryId }));
+        }
+      } catch (err) {
+        setMessage('Error loading categories');
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     //clear previous messages
     setMessage('');
 
-    console.log('Submitting form data:', form);
     // Prepare data for submission
     const payload = {
       categoryId: parseInt(form.categoryId, 10),
@@ -42,7 +60,7 @@ export default function ProductCreate() {
       listPrice: parseFloat(form.listPrice),
       discountPercent: parseFloat(form.discountPercent),
     };
-    console.log('Payload:', payload);
+
     // Validate numeric fields
     if (
       !validateNumber(payload.categoryId) ||
@@ -79,8 +97,20 @@ export default function ProductCreate() {
       }
 
       const data = await response.json();
-      localStorage.setItem('product', JSON.stringify(data));
-      navigate(`/product/${data.productId}`);
+      // normalize casing (backend might return PascalCase)
+      const created = {
+        productId: data.productId ?? data.ProductId,
+        categoryId: data.categoryId ?? data.CategoryId,
+        categoryName: data.categoryName ?? data.CategoryName,
+        productCode: data.productCode ?? data.ProductCode,
+        productName: data.productName ?? data.ProductName,
+        description: data.description ?? data.Description,
+        listPrice: data.listPrice ?? data.ListPrice,
+        discountPercent: data.discountPercent ?? data.DiscountPercent,
+      };
+
+      localStorage.setItem('product', JSON.stringify(created));
+      navigate(`/product/${created.productId}`);
     } catch (error) {
       setMessage(`Error creating product: ${error.message}`);
     }
@@ -90,13 +120,19 @@ export default function ProductCreate() {
     <form onSubmit={handleSubmit}>
       <h2>Create Product</h2>
       <div>
-        <label>Category Id</label>
-        <input
+        <label>Category</label>
+        <select
           name="categoryId"
-          type="text"
           value={form.categoryId}
           onChange={handleChange}
-        />
+        >
+          <option value="">-- Select category --</option>
+          {categories.map((c) => (
+            <option key={c.categoryId} value={c.categoryId}>
+              {c.categoryName}
+            </option>
+          ))}
+        </select>
       </div>
       <div>
         <label>Product Code</label>

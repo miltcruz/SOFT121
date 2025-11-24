@@ -12,13 +12,30 @@ export default function ProductDetails() {
   useEffect(() => {
     if (!productId) return;
 
+    const normalizeProduct = (p) => ({
+      productId: p?.productId ?? p?.ProductId ?? 0,
+      categoryId: p?.categoryId ?? p?.CategoryId ?? 0,
+      categoryName: p?.categoryName ?? p?.CategoryName ?? '',
+      productCode: p?.productCode ?? p?.ProductCode ?? '',
+      productName: p?.productName ?? p?.ProductName ?? '',
+      description: p?.description ?? p?.Description ?? '',
+      listPrice: p?.listPrice ?? p?.ListPrice ?? 0.0,
+      discountPercent: p?.discountPercent ?? p?.DiscountPercent ?? 0.0,
+    });
+
     const cachedProduct = localStorage.getItem('product');
     if (cachedProduct) {
-      if (JSON.parse(cachedProduct).productId.toString() === productId) {
-        setProduct(JSON.parse(cachedProduct));
-        setLoading(false);
-        localStorage.removeItem('product');
-        return;
+      try {
+        const parsed = JSON.parse(cachedProduct);
+        const normalized = normalizeProduct(parsed);
+        if (normalized.productId.toString() === productId) {
+          setProduct(normalized);
+          setLoading(false);
+          localStorage.removeItem('product');
+          return;
+        }
+      } catch (e) {
+        // ignore parse error and continue to fetch
       }
     }
 
@@ -35,7 +52,7 @@ export default function ProductDetails() {
         }
 
         const data = await response.json();
-        setProduct(data);
+        setProduct(normalizeProduct(data));
       } catch (error) {
         setError(error);
       } finally {
@@ -92,12 +109,12 @@ export default function ProductDetails() {
       <div style={{ marginTop: '1rem' }}>
         <Button
           type="button"
-          onClick={() => navigate('/product/create')}
+          onClick={() => navigate(`/product/update/${productId}`)}
           bg="blue"
           color="white"
           style={{ marginRight: '0.5rem' }}
         >
-          Create New Product
+          Update Product
         </Button>
         <Button
           type="button"

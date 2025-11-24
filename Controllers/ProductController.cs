@@ -11,9 +11,6 @@ public class ProductController : ControllerBase
 {
     private readonly IDataRepository _repo;
 
-    // remove in-memory list when implementing data access
-    private List<Product> products = new List<Product>();
-
     public ProductController(IDataRepositoryFactory factory)
     {
         _repo = factory.Create("MyGuitarShop");
@@ -25,7 +22,7 @@ public class ProductController : ControllerBase
         try
         {
             var rows = await _repo.GetDataAsync("GetAllProducts");
-            products = rows.Select(MapRowToProduct).ToList();
+            var products = rows.Select(MapRowToProduct).ToList();
             return Ok(products);
         }
         catch (Exception ex)
@@ -79,26 +76,54 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("{id}", Name = "UpdateProduct")]
-    public async Task<IActionResult> Update(int id, Product updatedProduct)
+    public async Task<IActionResult> Update(int id, [FromBody] Product updatedProduct)
     {
-        var product = products.FirstOrDefault(p => p.ProductId == id);
-        if (product == null) return NotFound();
+        if (updatedProduct == null) return BadRequest("Invalid product data.");
 
-        product.ProductName = updatedProduct.ProductName;
-        product.ListPrice = updatedProduct.ListPrice;
+        try
+        {
+            var parameters = new Dictionary<string, object?>
+            {
+                { "ProductID", id },
+                { "CategoryID", updatedProduct.CategoryId },
+                { "ProductCode", updatedProduct.ProductCode },
+                { "ProductName", updatedProduct.ProductName },
+                { "Description", updatedProduct.Description },
+                { "ListPrice", updatedProduct.ListPrice },
+                { "DiscountPercent", updatedProduct.DiscountPercent }
+            };
 
-        return NoContent();
+            await _repo.GetDataAsync("UpdateProduct", parameters);
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
     [HttpDelete("{id}", Name = "DeleteProduct")]
     public async Task<IActionResult> Delete(int id)
     {
-        var product = products.FirstOrDefault(p => p.ProductId == id);
+        try
+        {
+            // Call stored procedure to perform a soft delete (set IsActive = 0)
+            var parameters = new Dictionary<string, object?>
+            {
+                { "ProductID", id },
+                // Use Delete = 0 to indicate soft-delete (stored proc will set IsActive = 0)
+                { "Delete", 0 }
+            };
 
-        if (product == null) return NotFound();
-        bool removed = products.Remove(product);
+            await _repo.GetDataAsync("DeleteProduct", parameters);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
     private static Product MapRowToProduct(IDictionary<string, object?> row)
@@ -107,6 +132,7 @@ public class ProductController : ControllerBase
         {
             ProductId = row["ProductID"] != DBNull.Value ? Convert.ToInt32(row["ProductID"]) : 0,
             CategoryId = row["CategoryID"] != DBNull.Value ? Convert.ToInt32(row["CategoryID"]) : 0,
+            CategoryName = row["CategoryName"]?.ToString() ?? string.Empty,
             ProductCode = row["ProductCode"]?.ToString() ?? string.Empty,
             ProductName = row["ProductName"]?.ToString() ?? string.Empty,
             Description = row["Description"]?.ToString() ?? string.Empty,

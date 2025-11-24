@@ -49,6 +49,7 @@ export default function Products() {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Category</th>
               <th>Description</th>
             </tr>
           </thead>
@@ -60,6 +61,7 @@ export default function Products() {
                     {product.productName}
                   </Link>
                 </td>
+                <td>{product.categoryName}</td>
                 <td>{product.description}</td>
               </tr>
             ))}
