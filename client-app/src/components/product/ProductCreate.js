@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Button from '../Button';
 import { useNavigate } from 'react-router';
 import { validateNumber, validationAlphaNumeric } from '../../scripts';
+import { ENDPOINTS } from '../../apiConfig';
 
 export default function ProductCreate() {
   const [form, setForm] = useState({
@@ -67,7 +68,7 @@ export default function ProductCreate() {
     }
 
     try {
-      const response = await fetch('http://localhost:5156/product', {
+      const response = await fetch(ENDPOINTS.PRODUCT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

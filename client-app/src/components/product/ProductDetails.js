@@ -1,5 +1,7 @@
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { useEffect, useState } from 'react';
+import { ENDPOINTS } from '../../apiConfig';
+import Button from '../Button';
 
 export default function ProductDetails() {
   const { productId } = useParams();
@@ -15,7 +17,7 @@ export default function ProductDetails() {
       if (JSON.parse(cachedProduct).productId.toString() === productId) {
         setProduct(JSON.parse(cachedProduct));
         setLoading(false);
-        //localStorage.removeItem('product');
+        localStorage.removeItem('product');
         return;
       }
     }
@@ -26,9 +28,7 @@ export default function ProductDetails() {
       setError(null);
 
       try {
-        const response = await fetch(
-          `http://localhost:5156/product/${productId}`
-        );
+        const response = await fetch(`${ENDPOINTS.PRODUCT}/${productId}`);
 
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -47,6 +47,34 @@ export default function ProductDetails() {
     fetchProduct();
   }, [productId]);
 
+  const [message, setMessage] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const navigate = useNavigate();
+
+  const handleDelete = async () => {
+    const ok = window.confirm('Are you sure you want to delete this product?');
+    if (!ok) return;
+
+    setDeleting(true);
+    setMessage('');
+    try {
+      const res = await fetch(`${ENDPOINTS.PRODUCT}/${productId}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setMessage('Product deleted successfully.');
+        // Optionally navigate away or refresh; for now just indicate success
+      } else {
+        const text = await res.text();
+        setMessage(`Delete failed: ${res.status} ${text}`);
+      }
+    } catch (err) {
+      setMessage(`Delete failed: ${err.message}`);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div>
       <h2>Product Details</h2>
@@ -61,6 +89,27 @@ export default function ProductDetails() {
           <p>Discount: ${product.discountPercent}</p>
         </div>
       )}
+      <div style={{ marginTop: '1rem' }}>
+        <Button
+          type="button"
+          onClick={() => navigate('/product/create')}
+          bg="blue"
+          color="white"
+          style={{ marginRight: '0.5rem' }}
+        >
+          Create New Product
+        </Button>
+        <Button
+          type="button"
+          onClick={handleDelete}
+          disabled={deleting}
+          bg="red"
+          color="white"
+        >
+          {deleting ? 'Deleting...' : 'Delete'}
+        </Button>
+        {message && <div style={{ marginTop: '0.5rem' }}>{message}</div>}
+      </div>
     </div>
   );
 }

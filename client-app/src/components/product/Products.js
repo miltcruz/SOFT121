@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
+import Button from '../Button';
+import { ENDPOINTS } from '../../apiConfig';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5156/product');
+        const response = await fetch(ENDPOINTS.PRODUCT);
 
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -30,7 +33,14 @@ export default function Products() {
     <div>
       <h2>Products</h2>
       <div>
-        <Link to="/product/create">Create New Product</Link>
+        <Button
+          onClick={() => navigate('/product/create')}
+          type="button"
+          bg="blue"
+          color="white"
+        >
+          Create New Product
+        </Button>
       </div>
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error.message}</p>}

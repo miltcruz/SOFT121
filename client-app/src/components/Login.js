@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { validateEmail, validatePassword } from '../scripts';
 import { useNavigate } from 'react-router';
 import Button from './Button';
+import { ENDPOINTS } from '../apiConfig';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -29,7 +30,7 @@ function Login() {
     }
 
     try {
-      const response = await fetch('http://localhost:5156/login', {
+      const response = await fetch(ENDPOINTS.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
