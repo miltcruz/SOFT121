@@ -29,6 +29,9 @@ export default function Products() {
   return (
     <div>
       <h2>Products</h2>
+      <div>
+        <Link to="/product/create">Create New Product</Link>
+      </div>
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error.message}</p>}
       {!loading && !error && (

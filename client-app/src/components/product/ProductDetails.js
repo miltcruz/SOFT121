@@ -10,6 +10,16 @@ export default function ProductDetails() {
   useEffect(() => {
     if (!productId) return;
 
+    const cachedProduct = localStorage.getItem('product');
+    if (cachedProduct) {
+      if (JSON.parse(cachedProduct).productId.toString() === productId) {
+        setProduct(JSON.parse(cachedProduct));
+        setLoading(false);
+        //localStorage.removeItem('product');
+        return;
+      }
+    }
+
     // declare the async function to fetch product details
     const fetchProduct = async () => {
       setLoading(true);
