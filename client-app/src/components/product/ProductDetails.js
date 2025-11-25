@@ -69,18 +69,28 @@ export default function ProductDetails() {
   const navigate = useNavigate();
 
   const handleDelete = async () => {
-    const ok = window.confirm('Are you sure you want to delete this product?');
-    if (!ok) return;
+    const proceed = window.confirm(
+      'Are you sure you want to delete this product? Click OK to continue.'
+    );
+    if (!proceed) return;
+
+    // Ask whether to permanently delete or soft-delete (deactivate)
+    const permanent = window.confirm(
+      'Click OK to Permanently Delete product, or Cancel to Deactivate.'
+    );
 
     setDeleting(true);
     setMessage('');
     try {
-      const res = await fetch(`${ENDPOINTS.PRODUCT}/${productId}`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(
+        `${ENDPOINTS.PRODUCT}/${productId}?permanent=${permanent}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
       if (res.ok) {
-        setMessage('Product deleted successfully.');
-        // Optionally navigate away or refresh; for now just indicate success
+        navigate('/products');
       } else {
         const text = await res.text();
         setMessage(`Delete failed: ${res.status} ${text}`);

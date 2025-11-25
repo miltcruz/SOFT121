@@ -34,11 +34,18 @@ public class ProductController : ControllerBase
     [HttpGet("{id}", Name = "GetProductById")]
     public async Task<IActionResult> GetById(int id)
     {
-        var param = new Dictionary<string, object?> { { "ProductId", id } };
-        var rows = await _repo.GetDataAsync("GetProduct", param);
+        try
+        {
+            var param = new Dictionary<string, object?> { { "ProductId", id } };
+            var rows = await _repo.GetDataAsync("GetProduct", param);
 
-        var product = rows.Select(MapRowToProduct).FirstOrDefault();
-        return product == null ? NotFound() : Ok(product);
+            var product = rows.Select(MapRowToProduct).FirstOrDefault();
+            return product == null ? NotFound() : Ok(product);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
     [HttpPost(Name = "CreateProduct")]
@@ -104,16 +111,14 @@ public class ProductController : ControllerBase
     }
 
     [HttpDelete("{id}", Name = "DeleteProduct")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id, [FromQuery] bool permanent = false)
     {
         try
         {
-            // Call stored procedure to perform a soft delete (set IsActive = 0)
             var parameters = new Dictionary<string, object?>
             {
                 { "ProductID", id },
-                // Use Delete = 0 to indicate soft-delete (stored proc will set IsActive = 0)
-                { "Delete", 0 }
+                { "Delete", permanent ? 1 : 0 }
             };
 
             await _repo.GetDataAsync("DeleteProduct", parameters);
