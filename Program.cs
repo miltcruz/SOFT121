@@ -22,12 +22,22 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// Remove CORS policy in production
+// CORS: allow any origin in Development; restrict to the React site in Production
 if (app.Environment.IsDevelopment())
 {
     app.UseCors(policy =>
     {
         policy.AllowAnyOrigin();
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+    });
+}
+else
+{
+    // Only allow the specific production origin
+    app.UseCors(policy =>
+    {
+        policy.WithOrigins("http://site");
         policy.AllowAnyHeader();
         policy.AllowAnyMethod();
     });
