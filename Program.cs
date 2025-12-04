@@ -34,12 +34,13 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    // Only allow the specific production origin
+    // Read allowed production origins from configuration (appsettings or env)
+    var prodOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
     app.UseCors(policy =>
     {
-        policy.WithOrigins("http://site");
-        policy.AllowAnyHeader();
-        policy.AllowAnyMethod();
+        policy.WithOrigins(prodOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 }
 

@@ -1,0 +1,22 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DbName": "Server=;Database=;User Id=;Password=;TrustServerCertificate=True;Encrypt=False;"
+  },
+  "RemoteConnectionStrings": {
+    "DbName": "Server=;Database=;User Id=;Password=;TrustServerCertificate=True;Encrypt=False;"
+  },
+  "DbProvider": "SqlServer",
+  "Database": {
+    "UseRemote": true
+  },
+  "Cors": {
+    "AllowedOrigins": ["http://localhost:3000", "http://localhost:5173"]
+  }
+}
